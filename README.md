@@ -1,6 +1,18 @@
 # Dev-Phase - this README reflects the planned End-State of the project
 # Storage Warriors -- The Solution for Storage Optimization
 
+# Überblick
+
+**Storage Warriors** ist eine leistungsstarke Lösung für die Datenanalyse und -verwaltung, die darauf abzielt, Geschäftsprozesse durch optimierte Datennutzung zu verbessern. Unsere Plattform ermöglicht die effiziente Analyse und Verwaltung von Daten in verschiedenen Formaten und bietet eine benutzerfreundliche Oberfläche für den Umgang mit großen Datenmengen.
+Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse historischer Bestelldaten präzise Vorhersagen für zukünftige Bestellungen zu treffen. So können Sie rechtzeitig agieren, Ihre Lagerbestände effizienter verwalten und sich entscheidende Wettbewerbsvorteile sichern.
+
+# Gruppenmitglieder
+
+Hendrik Träber 
+Paul Brüderle 
+David Kleiner 
+Gülbahar Cogac
+
 # Installation
 
 To install our program, clone or download the REPO and go to the directory
