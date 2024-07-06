@@ -6,14 +6,14 @@
 **Storage Warriors** ist eine leistungsstarke Lösung für die Datenanalyse und -verwaltung, die darauf abzielt, Geschäftsprozesse durch optimierte Datennutzung zu verbessern. Unsere Plattform ermöglicht die effiziente Analyse und Verwaltung von Daten in verschiedenen Formaten und bietet eine benutzerfreundliche Oberfläche für den Umgang mit großen Datenmengen.
 Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse historischer Bestelldaten präzise Vorhersagen für zukünftige Bestellungen zu treffen. So können Sie rechtzeitig agieren, Ihre Lagerbestände effizienter verwalten und sich entscheidende Wettbewerbsvorteile sichern.
 
-# Gruppenmitglieder
+# Team Members / Participants
 
-- Hendrik Träber
-- Paul Brüderle
-
-- David Kleiner
-
-- Gülbahar Cogac
+| Member Name    | Student Number |
+| -------------- | -------------- |
+| ---            | 6367227        |
+| Paul Brüderle  | MISSING        |
+| David Kleiner  | MISSING        |
+| Gülbahar Cogac | 5801309        |
 
 # Installation
 
