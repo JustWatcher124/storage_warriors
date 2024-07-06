@@ -9,8 +9,10 @@ Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse hi
 # Gruppenmitglieder
 
 - Hendrik Träber
-- Paul Brüderle 
-- David Kleiner 
+- Paul Brüderle
+
+- David Kleiner
+
 - Gülbahar Cogac
 
 # Installation
