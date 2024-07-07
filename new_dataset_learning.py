@@ -1,3 +1,4 @@
+import hashlib
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -18,24 +19,19 @@ data = pd.read_csv(data_file_name)
 # Erste Inspektion der Daten
 print(data.head())
 
-# Feature Engineering: Datum in Jahr, Monat und Tag aufteilen
 data['date'] = pd.to_datetime(data['date'])
 data['year'] = data['date'].dt.year
 data['month'] = data['date'].dt.month
 data['day'] = data['date'].dt.day
 
-# Relevante Features auswählen
 features = ['product_id', 'year', 'month', 'day']
 X = data[features]
 y = data['sales']
 
-# Kategorische Daten in numerische umwandeln
 X = pd.get_dummies(X, columns=['product_id'], drop_first=True)
 
-# Datensatz in Trainings- und Testdaten aufteilen
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Liste der Modelle
 models = {
     "RandomForest": RandomForestRegressor(n_estimators=100, random_state=42),
     "GradientBoosting": GradientBoostingRegressor(n_estimators=100, random_state=42),
@@ -47,10 +43,8 @@ models = {
     "DecisionTree": DecisionTreeRegressor(random_state=42)
 }
 
-# Funktion zum Trainieren und Bewerten eines Modells
 
-
-def train_and_evaluate(model_name, model, X_train, y_train, X_test, y_test, callback=None):
+def train_and_evaluate(model_info, model, X_train, y_train, X_test, y_test, callback=None):
     # Kopiere die Daten, um den Fehler zu vermeiden
     X_train_copy = copy.deepcopy(X_train)
     y_train_copy = copy.deepcopy(y_train)
@@ -60,15 +54,13 @@ def train_and_evaluate(model_name, model, X_train, y_train, X_test, y_test, call
     model.fit(X_train_copy, y_train_copy)
     y_pred = model.predict(X_test_copy)
     mae = mean_absolute_error(y_test_copy, y_pred)
-    result = (model_name, mae, model)
+    result = (model_info['name'], mae, model)
 
     # Callback aufrufen, falls definiert
     if callback:
         callback(result)
 
     return result
-
-# Callback-Funktion zur sofortigen Ausgabe der Ergebnisse
 
 
 def print_result(result):
@@ -101,6 +93,5 @@ new_data_df = new_data_df.reindex(columns=X.columns, fill_value=0)
 predicted_sales = best_model.predict(new_data_df)
 print(f'Predicted Sales: {predicted_sales[0]}')
 
-import hashlib
 with open(f'{hashlib.sha256(df1.to_json().encode()).hexdigest()}.pkl', 'wb') as pickle_file:
     pickle.dump(best_model, pickle_file)

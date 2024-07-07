@@ -5,6 +5,7 @@ import tempfile
 from typing import Union
 import os
 
+
 def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
     """
     Loads one or more data files (CSV, Parquet, Excel/xlsx/xls, ODS) into a Pandas DataFrame.
@@ -52,6 +53,7 @@ def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> 
     data_raw = pd.concat(list(list_df))
     return data_raw
 
+
 def load_data_from_path(file_path: str, worksheet=0) -> pd.DataFrame:
     """
     Loads one or more data files (CSV, Parquet, Excel/xlsx/xls, ODS) into a Pandas DataFrame.
@@ -91,6 +93,10 @@ def load_data_from_path(file_path: str, worksheet=0) -> pd.DataFrame:
     data_raw = pd.concat(list(list_df))
     return data_raw
 
+
 def get_files(directory='.', extension='.meta'):
     return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith(extension)]
 
+
+def only_selected_models(model_dict):
+    return [model_name for model_name, boolean in model_dict.items() if boolean]
