@@ -22,7 +22,8 @@ product_years = data.groupby(['product_id', 'year']).size().reset_index(name='co
 
 # Filter products that have sales in every required year
 products_with_all_years = product_years[product_years['year'].isin(required_years)]
-products_with_all_years = products_with_all_years.groupby('product_id').filter(lambda x: set(x['year']) == required_years)
+products_with_all_years = products_with_all_years.groupby(
+    'product_id').filter(lambda x: set(x['year']) == required_years)
 
 # Get the unique products that meet the criteria
 valid_products = products_with_all_years['product_id'].unique()
@@ -34,12 +35,13 @@ filtered_data = data[data['product_id'].isin(valid_products)]
 filtered_data.set_index('date', inplace=True)
 
 # Group by product_id and resample to weekly frequency, then compute the cumulative sum of sales per product
-weekly_sales = filtered_data.groupby('product_id').resample('W').sum(numeric_only=True).groupby(level=0).cumsum().reset_index()
+weekly_sales = filtered_data.groupby('product_id').resample('W').sum(
+    numeric_only=True).groupby(level=0).cumsum().reset_index()
 
 # Filter products based on cumulative sales thresholds
 final_cumulative_sales = weekly_sales.groupby('product_id').last().reset_index()
 filtered_product_ids = final_cumulative_sales[
-    (final_cumulative_sales['sales'] >= 5000) & 
+    (final_cumulative_sales['sales'] >= 5000) &
     (final_cumulative_sales['sales'] <= 20000)
 ]['product_id']
 
@@ -51,6 +53,8 @@ output_file_path = 'filtered_weekly_cumulative_sales.csv'
 filtered_cumulative_sales.to_csv(output_file_path, index=False)
 
 # Plotting function
+
+
 def plot_sales_group(product_ids, sales_data):
     plt.figure(figsize=(15, 8))
     for product_id in product_ids:
@@ -59,10 +63,11 @@ def plot_sales_group(product_ids, sales_data):
     plt.title('Cumulative Sales for Group of Products')
     plt.xlabel('Date')
     plt.ylabel('Cumulative Quantity Sold')
-    plt.legend(loc='upper left', bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
 
 # Plot sales for products in groups of 20
 unique_products = filtered_cumulative_sales['product_id'].unique()
@@ -71,8 +76,8 @@ wanted_data = data[data['product_id'].isin(unique_products)]
 
 wanted_data.to_csv('wanted_data.csv', index=False)
 
-print(len(unique_products))
-group_size = 20
-for i in range(0, len(unique_products), group_size):
-    product_group = unique_products[i:i + group_size]
-    plot_sales_group(product_group, filtered_cumulative_sales)
+# print(len(unique_products))
+# group_size = 20
+# for i in range(0, len(unique_products), group_size):
+#    product_group = unique_products[i:i + group_size]
+#    plot_sales_group(product_group, filtered_cumulative_sales)
