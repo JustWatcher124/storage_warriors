@@ -12,7 +12,7 @@ from joblib import Parallel, delayed
 import copy
 import pickle
 
-data_file_name = 'wanted_data.csv'
+data_file_name = 'single_product_for_showcase.csv'
 # Daten laden
 data = pd.read_csv(data_file_name)
 
@@ -33,14 +33,14 @@ X = pd.get_dummies(X, columns=['product_id'], drop_first=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 models = {
-    "RandomForest": RandomForestRegressor(n_estimators=100, random_state=42),
-    "GradientBoosting": GradientBoostingRegressor(n_estimators=100, random_state=42),
-    "LinearRegression": LinearRegression(),
-    "Ridge": Ridge(),
-    "Lasso": Lasso(),
+    # "RandomForest": RandomForestRegressor(n_estimators=100, random_state=42),
+    # "GradientBoosting": GradientBoostingRegressor(n_estimators=100, random_state=42),
+    # "LinearRegression": LinearRegression(),
+    # "Ridge": Ridge(),
+    # "Lasso": Lasso(),
     "SVR": SVR(),
-    "KNeighbors": KNeighborsRegressor(),
-    "DecisionTree": DecisionTreeRegressor(random_state=42)
+    # "KNeighbors": KNeighborsRegressor(),
+    # "DecisionTree": DecisionTreeRegressor(random_state=42)
 }
 
 
@@ -54,7 +54,7 @@ def train_and_evaluate(model_info, model, X_train, y_train, X_test, y_test, call
     model.fit(X_train_copy, y_train_copy)
     y_pred = model.predict(X_test_copy)
     mae = mean_absolute_error(y_test_copy, y_pred)
-    result = (model_info['name'], mae, model)
+    result = (model_info, mae, model)
 
     # Callback aufrufen, falls definiert
     if callback:
@@ -93,5 +93,5 @@ new_data_df = new_data_df.reindex(columns=X.columns, fill_value=0)
 predicted_sales = best_model.predict(new_data_df)
 print(f'Predicted Sales: {predicted_sales[0]}')
 
-with open(f'{hashlib.sha256(df1.to_json().encode()).hexdigest()}.pkl', 'wb') as pickle_file:
-    pickle.dump(best_model, pickle_file)
+# with open(f'{hashlib.sha256(df1.to_json().encode()).hexdigest()}.pkl', 'wb') as pickle_file:
+#     pickle.dump(best_model, pickle_file)

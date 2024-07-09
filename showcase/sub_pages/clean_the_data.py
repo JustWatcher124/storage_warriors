@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+from helpers.clean_data import clean_dataframe
 
 
 try:
@@ -34,7 +35,7 @@ try:
         options['winsor_percentile'] = st.number_input(
             'Input a percentile (between 0 and 100) -- 0 or 100 do not make sense though', value=5, min_value=0, max_value=100)
     st.markdown(markdown[5])
-    options['wanted_value'] = st.selectbox(
+    options['product_id'] = st.selectbox(
         'Select the column that contains an identifier for your products (id, name, etc.)', options=set(df.columns) -
         set(options['drop_columns']) - set(options['wanted_value']))
     st.markdown(markdown[6])
@@ -44,6 +45,8 @@ try:
     submitted = st.button('Submit these Options')
     if submitted:
         st.session_state['cleaned_data'] = True
+        # st.write(options)
+        st.session_state['clean_dataframe'] = clean_dataframe(df, winsorize_this_value=options['wanted_value'], winsor_percentile=options['winsor_percentile'], fillna_value=options['fillna_with'], drop_columns=options['drop_columns'])
         st.session_state['cleaning_options'] = options
         st.markdown(markdown[7])
 
