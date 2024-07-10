@@ -7,8 +7,7 @@ from io import StringIO
 st.set_page_config(page_title='Load New Data', page_icon='images/icon.png',
                    layout='wide', initial_sidebar_state='expanded')
 try:
-    if st.session_state['visited_homepage']:
-        print('User visited Homepage')
+    st.session_state['visited_homepage']
     with open('markdowns/load_new_data.md', 'r') as file:
         markdown = file.read().split('[[[[')
 

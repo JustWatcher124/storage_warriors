@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from pandas._libs.hashtable import mode
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, precision_score, accuracy_score, recall_score, f1_score, classification_report
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.svm import SVR
@@ -44,28 +44,30 @@ def preprocess_and_split(df, options):
 def train_models_st(X_train, y_train, X_test, y_test, model_list):
     results = []
     # training_data = (X_train, y_train, X_test, y_test)
-    with st.spinner("Running..."):
-        # st.write("test")
-        placeholder = st.empty()
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = (executor.submit(_train_and_test, X_train, y_train, X_test, y_test, model_info['model'], model_info['name']) for model_info in model_list)
-            for idx, future in enumerate(as_completed(futures), start=1):
-                result = future.result()
-                results.append(result)
-            placeholder.markdown(make_pretty_markdown_from_results(results))
+    # st.write("test")
+    placeholder = st.empty()
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = (executor.submit(_train_and_test, X_train, y_train, X_test, y_test,
+                   model_info['model'], model_info['name']) for model_info in model_list)
+        for idx, future in enumerate(as_completed(futures), start=1):
+            result = future.result()
+            results.append(result)
+        placeholder.markdown(make_pretty_markdown_from_results(results))
     # st.write(results)
     return results
 
+
 def make_pretty_markdown_from_results(results: list[tuple]):
     pretty_markdown_header = '|Model Name|MAE|\n|---|---|\n'
-    pretty_markdown_list = ["|"+str(name)+'|'+str(round(mae, 2))+"|\n" for mae, name, model in results]
+    pretty_markdown_list = ["|"+str(name)+'|'+str(round(scores, 2))+"|\n" for scores, name, model in results]
     markdown = "".join([pretty_markdown_header, *pretty_markdown_list])
     return markdown
 
+
 def train_models_with_parallel(X_train, y_train, X_test, y_test, model_list):
     """unusud but is a possible replacement for train_models_st"""
-    results = Parallel(n_jobs=12)(delayed(_train_and_test)(X_train, y_train,
-                                                               X_test, y_test, model_info['model']) for model_info in model_list)
+    results = Parallel(n_jobs=12)(delayed(_train_and_test)(X_train, y_train, X_test,
+                                                           y_test, model_info['model']) for model_info in model_list)
     print(results)
     return results
 
@@ -73,9 +75,16 @@ def train_models_with_parallel(X_train, y_train, X_test, y_test, model_list):
 def _train_and_test(X_train, y_train, X_test, y_test, model, name):
     trained_model = model.fit(X_train, y_train)
     predicted_y_test = predict(trained_model, X_test)
+    # report = classification_report(y_test, predicted_y_test)
+    # print(report)
     mae = mean_absolute_error(y_test, predicted_y_test)
+    # precision = precision_score(y_test, predicted_y_test)
+    # accuracy = accuracy_score(y_test, predicted_y_test)
+    # recall = recall_score(y_test, predicted_y_test)
+    # f_score = f1_score(y_test, predicted_y_test)
+    # scores = {'MAE': mae, 'Precision': precision, 'Accuracy': accuracy, 'Recall': recall, 'F1-Score': f_score}
     return mae, name, trained_model
-
+    # return 0
 
 
 def select_best_model(results):
@@ -102,5 +111,5 @@ def main_st(df, options, model_list):
     results = train_models_st(X_train, Y_train, X_test, Y_test, wanted_models)
     # results = train_models_with_parallel(X_train, Y_train, X_test, Y_test, wanted_models)
     # st.write(results)
-    print(results)
-    return 0
+    # print(results)
+    return results

@@ -5,8 +5,7 @@ import pickle
 
 
 try:
-    if st.session_state['visited_homepage']:
-        print('User visited Homepage')
+    _ = st.session_state['visited_homepage']
     with open('markdowns/load_old_data.md', 'r') as file:
         markdown = file.read().split('[[[[')
     st.markdown(markdown[0])

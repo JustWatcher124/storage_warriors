@@ -4,6 +4,8 @@ from io import StringIO
 import tempfile
 from typing import Union
 import os
+import pickle
+import hashlib
 
 
 def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
@@ -100,3 +102,47 @@ def get_files(directory='.', extension='.meta'):
 
 def only_selected_models(model_dict):
     return [model_name for model_name, boolean in model_dict.items() if boolean]
+
+
+def only_selected_model_infos(save_model_dict):
+    return [info[1] for model_name, info in save_model_dict.items() if info[0]]
+
+
+def save_model_to_system(model_info):
+    model_mae, model_name, model, available_products, user_set_model_name = model_info
+    print(model_name)
+    model_bytes = pickle.dumps(model)
+    hash_model = hashlib.sha256(model_bytes).hexdigest()
+    filename = f"{hash_model}"
+    meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
+                 'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products}
+    current_directory = os.getcwd()
+    model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
+
+    with open(model_directory+'.meta', 'wb') as file:
+        pickle.dump(meta_info, file)
+    file.close()
+    with open(model_directory+'.pkl', 'wb') as file:
+        pickle.dump(model, file)
+    file.close()
+    return 0
+
+
+def save_dataset_to_system(dataset_info):
+    model_mae, model_name, model, available_products, user_set_model_name = model_info
+    print(model_name)
+    model_bytes = pickle.dumps(model)
+    hash_model = hashlib.sha256(model_bytes).hexdigest()
+    filename = f"{hash_model}"
+    meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
+                 'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products}
+    current_directory = os.getcwd()
+    model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
+
+    with open(model_directory+'.meta', 'wb') as file:
+        pickle.dump(meta_info, file)
+    file.close()
+    with open(model_directory+'.pkl', 'wb') as file:
+        pickle.dump(model, file)
+    file.close()
+    return 0
