@@ -46,7 +46,7 @@ def train_models_st(X_train, y_train, X_test, y_test, model_list):
     # training_data = (X_train, y_train, X_test, y_test)
     # st.write("test")
     placeholder = st.empty()
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         futures = (executor.submit(_train_and_test, X_train, y_train, X_test, y_test,
                    model_info['model'], model_info['name']) for model_info in model_list)
         for idx, future in enumerate(as_completed(futures), start=1):
@@ -66,7 +66,7 @@ def make_pretty_markdown_from_results(results: list[tuple]):
 
 def train_models_with_parallel(X_train, y_train, X_test, y_test, model_list):
     """unusud but is a possible replacement for train_models_st"""
-    results = Parallel(n_jobs=12)(delayed(_train_and_test)(X_train, y_train, X_test,
+    results = Parallel(n_jobs=2)(delayed(_train_and_test)(X_train, y_train, X_test,
                                                            y_test, model_info['model']) for model_info in model_list)
     print(results)
     return results
@@ -101,6 +101,17 @@ def predict(trained_model, X):
 
 
 def main_st(df, options, model_list):
+
+    st.write(options)
+    if not all([val in df.columns for val in ['year', 'month', 'day']]):
+        print('Helloooo')
+        date_column = options['date_column']
+        st.write(date_column)
+        df[date_column] = pd.to_datetime(df[date_column])
+        df['year'] = df[date_column].dt.year
+        df['month'] = df[date_column].dt.month
+        df['day'] = df[date_column].dt.day
+        
     wanted_model_name = [mn for mn, mb in model_list.items() if mb]
     if not wanted_model_name:
         wanted_model_name = [info['name'] for info in MODELS]
@@ -108,6 +119,7 @@ def main_st(df, options, model_list):
 
     # st.write(wanted_models)
     X_train, X_test, Y_train, Y_test = preprocess_and_split(df, options)
+    st.write('splitted')
     results = train_models_st(X_train, Y_train, X_test, Y_test, wanted_models)
     # results = train_models_with_parallel(X_train, Y_train, X_test, Y_test, wanted_models)
     # st.write(results)

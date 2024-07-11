@@ -43,11 +43,29 @@ try:
     user_datasets = [datasets_meta for datasets_meta in datasets_meta_list if not datasets_meta['system_trained']]
     if user_datasets:
         st.markdown(helper_functions.pretty_markdown_for_datasets(user_datasets))
+        with st.form('user datasets choice form', border=False):
+            use_this_dataset = st.selectbox(
+                'Select a dataset from the list directly above to choose it for training',
+                options=[dataset_info['data_name']+' - '+dataset_info['data_file_name'] for dataset_info in user_datasets], on_change=lock_in_choice())
+            submit_user_dataset = st.form_submit_button('Use this Choice')
+            if submit_user_dataset:
+                st.write('With the Dataset chosen, you can continue to the Train or Save page in the New Model / Data section')
+                st.session_state['clean_dataframe'], st.session_state['cleaning_options'] = get_dataset_from_choice(use_this_dataset, user_datasets)
     else:
         st.markdown(markdown_alt[0])
+
     if system_datasets:
         st.markdown(markdown_alt[3])
         st.markdown(helper_functions.pretty_markdown_for_datasets(system_datasets))
+        with st.form('system datasets choice form', border=False):
+            use_this_dataset = st.selectbox(
+                'Select a dataset from the list directly above to choose it for training',
+                options=[dataset_info['data_name']+' - '+dataset_info['data_file_name'] for dataset_info in system_datasets], on_change=lock_in_choice())
+            print('h')
+            submit_system_dataset = st.form_submit_button('Use this Choice')
+            if submit_system_dataset:
+                st.write('With the Dataset chosen, you can continue to the Train or Save page in the New Model / Data section')
+                st.session_state['clean_dataframe'], st.session_state['cleaning_options'] = helper_functions.get_dataset_from_choice(use_this_dataset, system_datasets)
     else:
         st.markdown(markdown_alt[4])
 
@@ -66,10 +84,11 @@ try:
         with st.form('user models choice form', border=False):
             use_this_model = st.selectbox(
                 'Select a model from the list directly above to choose it for prediction',
-                options=[model_info['model_name'] for model_info in system_models], on_change=lock_in_choice())
+                options=[model_info['model_name']+' - '+model_info['user_model_name'] for model_info in user_models], on_change=lock_in_choice())
             submit_user_models = st.form_submit_button('Use this Choice')
-            if submit_system_models:
-                st.write("Test")
+            if submit_user_models:
+                st.write('With the Model set, please continue on to the Prediction Page')
+                st.session_state['chosen_model'] = use_this_model 
     else:
         st.markdown(markdown_alt[2])
 
@@ -79,10 +98,11 @@ try:
         with st.form('system models choice form', border=False):
             use_this_model = st.selectbox(
                 'Select a model from the list directly above to choose it for prediction',
-                options=[model_info['model_name'] for model_info in system_models], on_change=lock_in_choice())
+                options=[model_info['model_name'] + ' - ' + 'System Trained' for model_info in system_models], on_change=lock_in_choice())
             submit_system_models = st.form_submit_button('Use this Choice')
             if submit_system_models:
-                st.write("Test")
+                st.write('With the Model set, please continue on to the Prediction Page')
+                st.session_state['chosen_model'] = use_this_model 
     else:
         st.markdown(markdown_alt[1])
 

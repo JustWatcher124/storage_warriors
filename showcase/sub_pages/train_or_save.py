@@ -8,9 +8,11 @@ try:
     try:
         _ = st.session_state['trained_models']
         models_are_trained = True
+        options = st.session_state['cleaning_options']
     except:
         models_are_trained = False
         chosen_models = None
+        options = st.session_state['cleaning_options']
     with open('markdowns/train_or_save.md', 'r') as file:
         markdown = file.read().split('[[[[')
     file.close()
@@ -22,18 +24,23 @@ try:
     file.close()
     st.markdown(train_model_markdown[0])
     selected_models = {model['name']: st.checkbox(model['name']) for model in MODELS}
+    test_split = st.number_input('In a percentage of the Test/Train Split (defaults: 20% Test, 80% Train)', value=20)
     train_them = st.button('Train These models')
     st.session_state['selected_models'] = selected_models
-    st.session_state['cleaning_options']['test_split'] = st.session_state['options'] = 20
+
+
+    
+
     if train_them or models_are_trained:
         st.markdown(train_model_markdown[1])
-        trained_models = main_st(df, st.session_state['cleaning_options'], selected_models)
+        options['test_split'] = test_split
+        trained_models = main_st(df, options, selected_models)
         st.session_state['trained_models'] = trained_models
         save_models = {model[1]: (st.checkbox(model[1], key=hash(model[1])), model)
                        for model in st.session_state['trained_models']}
         safe_them = st.button('Safe these models in the system')
         choose_one_to_save = any([v[0] for k, v in save_models.items()])
-        available_products = list(df[st.session_state['cleaning_options']['product_id']].unique())
+        available_products = list(df[options['product_id']].unique())
         user_model_name = st.text_input('### Put a Name for your trained models here')
         unallowed_characters = '#\'\"[]{}:();,./?!@%$'
         user_input_is_disallowed = any([i in user_model_name for i in unallowed_characters])
@@ -50,9 +57,6 @@ try:
             st.error('You did not write a model(s) name, you won\'t find it later!')
         elif safe_them and not user_model_name and not choose_one_to_save:
             st.error('You did not write down a name or chose any to save. You will loose them if you reload the system!!')
-#        selected_models2 = {model[1]: (st.checkbox(model[1]), model) for model in st.session_state['trained_models']}
-#        selected_models2
-        # selected_models = {model['name']: st.checkbox(model['name']) for model in MODELS}
     st.markdown(markdown[2])
     with open('markdowns/save_data.md', 'r') as file:
         save_data_markdown = file.read().split('[[[[')

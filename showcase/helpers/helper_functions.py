@@ -132,21 +132,20 @@ def save_model_to_system(model_info):
 
 
 def save_dataset_to_system(dataset_info):
-    model_mae, model_name, model, available_products, user_set_model_name = model_info
-    print(model_name)
-    model_bytes = pickle.dumps(model)
-    hash_model = hashlib.sha256(model_bytes).hexdigest()
-    filename = f"{hash_model}"
-    meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name, 'system_trained': False,
-                 'model_filename': f'{filename}.pkl', 'products': available_products}
+#    print(dataset_name)
+    dataset_bytes = pickle.dumps(dataset)
+    hash_dataset = hashlib.sha256(dataset_bytes).hexdigest()
+    filename = f"{hash_dataset}"
+    meta_info = {'data_name': dataset_name, 'user_dataset_name': user_set_dataset_name, 'system_trained': False,
+                 'dataset_filename': f'{filename}.pkl', 'products': available_products}
     current_directory = os.getcwd()
-    model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
+    dataset_directory = os.path.join(current_directory, f'../datasets/{filename}')
 
-    with open(model_directory+'.meta', 'wb') as file:
+    with open(dataset_directory+'.meta', 'wb') as file:
         pickle.dump(meta_info, file)
     file.close()
-    with open(model_directory+'.pkl', 'wb') as file:
-        pickle.dump(model, file)
+    with open(dataset_directory+'.pkl', 'wb') as file:
+        pickle.dump(dataset, file)
     file.close()
     return 0
 
@@ -174,3 +173,22 @@ def pretty_markdown_for_models(model_dict_list):
         table_rows += f'\n| {model_info["model_name"]} | {model_info["user_model_name"]} | {model_info["train_date"]} |'
     markdown = heading + table_header + table_rows
     return markdown
+
+
+def get_dataset_from_choice(choice_str, datasets):
+    for dataset_info in datasets:
+        if dataset_info['data_name']+' - ' + dataset_info['data_file_name'] == choice_str:
+            wanted_dataset_info = dataset_info
+            print(wanted_dataset_info)
+            break
+    df_filename = wanted_dataset_info['dataset_filename']
+    current_directory = os.getcwd()
+    dataset_file_loc = os.path.join(current_directory, f'../datasets/{df_filename}')
+    with open(dataset_file_loc, 'rb') as file:
+        df = pickle.load(file)
+    
+    options = wanted_dataset_info['options']
+    return df, options
+
+
+
