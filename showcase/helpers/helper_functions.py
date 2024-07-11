@@ -208,12 +208,11 @@ def make_prediction(model, products, date_range_tuple):
 
     prediction_collector = {product: 0 for product in products}
     date_range = pd.date_range(date_range_tuple[0], date_range_tuple[1])
-    print(0)
+    print(prediction_collector)
     for product in products:
         prediction_collector[product] = [model.predict(
             np.array([date.year, date.month, date.day]).reshape(1, -1))[0] for date in date_range]
 
-    print(prediction_collector)
-#    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
+        #    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
     prediction_df = pd.DataFrame.from_dict(prediction_collector, orient='index').sum(axis=1)
     return prediction_df
