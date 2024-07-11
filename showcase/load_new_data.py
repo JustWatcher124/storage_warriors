@@ -7,7 +7,7 @@ from io import StringIO
 st.set_page_config(page_title='Load New Data', page_icon='images/icon.png',
                    layout='wide', initial_sidebar_state='expanded')
 try:
-    st.session_state['visited_homepage']
+    _ = st.session_state['visited_homepage']
     with open('markdowns/load_new_data.md', 'r') as file:
         markdown = file.read().split('[[[[')
 
@@ -18,11 +18,15 @@ try:
                                       accept_multiple_files=True)
     # st.write(uploaded_file)
 
+    if len(uploaded_files) > 1:
+        st.session_state['data_filename'] = st.selectbox(
+            'Select a file name to store with the model or dataset later',
+            options=[file.name for file in uploaded_files])
+    elif uploaded_files:
+        st.session_state['data_filename'] = uploaded_files[0].name
     start_process_btn = st.button('That\' all of them')
-
     if start_process_btn and uploaded_files:  # check if the list if not an empty list
         io_list = []
-
         # To read file(s) as bytes:
         for file in uploaded_files:
             bytes_data = file.getvalue()

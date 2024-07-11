@@ -4,20 +4,8 @@ import helpers.helper_functions as helper_functions
 import pickle
 
 
-def reset_choices():
-    st.session_state['reset_choices_loading'] = True
-
-
-def lock_in_choice():
-    st.session_state['reset_choices_loading'] = False
-
-
 try:
     _ = st.session_state['visited_homepage']
-    try:
-        _ = st.session_state['reset_choices_loading']
-    except:
-        st.session_state['reset_choices_loading'] = False
     with open('markdowns/load_old_data.md', 'r') as file:
         markdown = file.read().split('[[[[')
     file.close()
@@ -46,11 +34,14 @@ try:
         with st.form('user datasets choice form', border=False):
             use_this_dataset = st.selectbox(
                 'Select a dataset from the list directly above to choose it for training',
-                options=[dataset_info['data_name']+' - '+dataset_info['data_file_name'] for dataset_info in user_datasets], on_change=lock_in_choice())
+                options=[dataset_info['data_name'] + ' - ' + dataset_info['data_file_name']
+                         for dataset_info in user_datasets])
             submit_user_dataset = st.form_submit_button('Use this Choice')
             if submit_user_dataset:
                 st.write('With the Dataset chosen, you can continue to the Train or Save page in the New Model / Data section')
-                st.session_state['clean_dataframe'], st.session_state['cleaning_options'] = get_dataset_from_choice(use_this_dataset, user_datasets)
+                st.session_state['clean_dataframe'], st.session_state['cleaning_options'], st.session_state['data_filename'] = helper_functions.get_dataset_from_choice(
+                    use_this_dataset, user_datasets)
+
     else:
         st.markdown(markdown_alt[0])
 
@@ -60,12 +51,13 @@ try:
         with st.form('system datasets choice form', border=False):
             use_this_dataset = st.selectbox(
                 'Select a dataset from the list directly above to choose it for training',
-                options=[dataset_info['data_name']+' - '+dataset_info['data_file_name'] for dataset_info in system_datasets], on_change=lock_in_choice())
-            print('h')
+                options=[dataset_info['data_name'] + ' - ' + dataset_info['data_file_name']
+                         for dataset_info in system_datasets])
             submit_system_dataset = st.form_submit_button('Use this Choice')
             if submit_system_dataset:
                 st.write('With the Dataset chosen, you can continue to the Train or Save page in the New Model / Data section')
-                st.session_state['clean_dataframe'], st.session_state['cleaning_options'] = helper_functions.get_dataset_from_choice(use_this_dataset, system_datasets)
+                st.session_state['clean_dataframe'], st.session_state['cleaning_options'], st.session_state['data_filename'] = helper_functions.get_dataset_from_choice(
+                    use_this_dataset, system_datasets)
     else:
         st.markdown(markdown_alt[4])
 
@@ -84,11 +76,12 @@ try:
         with st.form('user models choice form', border=False):
             use_this_model = st.selectbox(
                 'Select a model from the list directly above to choose it for prediction',
-                options=[model_info['model_name']+' - '+model_info['user_model_name'] for model_info in user_models], on_change=lock_in_choice())
+                options=[model_info['model_name']+' - '+model_info['user_model_name'] for model_info in user_models])
             submit_user_models = st.form_submit_button('Use this Choice')
             if submit_user_models:
                 st.write('With the Model set, please continue on to the Prediction Page')
-                st.session_state['chosen_model'] = use_this_model 
+                st.session_state['chosen_model'], st.session_state['chosen_models_avail_products'] = helper_functions.get_model_from_choice(
+                    use_this_model, user_models)
     else:
         st.markdown(markdown_alt[2])
 
@@ -98,11 +91,12 @@ try:
         with st.form('system models choice form', border=False):
             use_this_model = st.selectbox(
                 'Select a model from the list directly above to choose it for prediction',
-                options=[model_info['model_name'] + ' - ' + 'System Trained' for model_info in system_models], on_change=lock_in_choice())
+                options=[model_info['model_name'] + ' - ' + model_info['user_model_name'] for model_info in system_models])
             submit_system_models = st.form_submit_button('Use this Choice')
             if submit_system_models:
                 st.write('With the Model set, please continue on to the Prediction Page')
-                st.session_state['chosen_model'] = use_this_model 
+                st.session_state['chosen_model'], st.session_state['chosen_models_avail_products'] = helper_functions.get_model_from_choice(
+                    use_this_model, system_models)
     else:
         st.markdown(markdown_alt[1])
 

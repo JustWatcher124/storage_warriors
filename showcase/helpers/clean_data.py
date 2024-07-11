@@ -23,7 +23,8 @@ def winsorize_column(df, column, quantile=0.05):
     return df[column]
 
 
-def clean_dataframe(df: pd.DataFrame, winsorize_this_value: list = None, winsor_percentile: int = 5, fillna_value: float = np.nan, date_column='date', drop_columns=[]) -> pd.DataFrame:
+def clean_dataframe(df: pd.DataFrame, winsorize_this_value: list = None, winsor_percentile: int = 5,
+                    fillna_value: float = np.nan, date_column='date', drop_columns=[]) -> pd.DataFrame:
     """
         Available keyword arguments:
         - 'winsorize_columns' (list of strings): List of column names to be winsorized at the 5th percentile.
@@ -42,8 +43,8 @@ def clean_dataframe(df: pd.DataFrame, winsorize_this_value: list = None, winsor_
 
     # Winsorize columns if specified
     if winsorize_this_value is not None:
-       df[winsorize_this_value] = winsorize_column(df, winsorize_this_value, quantile=winsor_percentile)
-      
+        df[winsorize_this_value] = winsorize_column(df, winsorize_this_value, quantile=winsor_percentile)
+
     df[date_column] = pd.to_datetime(df[date_column])
     df['year'] = df[date_column].dt.year
     df['month'] = df[date_column].dt.month

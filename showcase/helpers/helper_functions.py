@@ -1,12 +1,12 @@
 import pandas as pd
 import glob
 from io import StringIO
-import tempfile
 from typing import Union
 import os
 import pickle
 import hashlib
 import datetime
+import numpy as np
 
 
 def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
@@ -109,15 +109,14 @@ def only_selected_model_infos(save_model_dict):
     return [info[1] for model_name, info in save_model_dict.items() if info[0]]
 
 
-def save_model_to_system(model_info):
+def save_model_to_system(model_info, data_filename):
     model_mae, model_name, model, available_products, user_set_model_name = model_info
-    print(model_name)
     model_bytes = pickle.dumps(model)
     hash_model = hashlib.sha256(model_bytes).hexdigest()
     filename = f"{hash_model}"
     meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
                  'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products,
-                 'train_data': str(datetime.datetime.now().isoformat())}
+                 'train_date': str(datetime.datetime.now().isoformat())}
 
     current_directory = os.getcwd()
     model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
@@ -131,16 +130,14 @@ def save_model_to_system(model_info):
     return 0
 
 
-def save_dataset_to_system(dataset_info):
-#    print(dataset_name)
+def save_dataset_to_system(dataset, data_filename, dataset_name, options):
     dataset_bytes = pickle.dumps(dataset)
     hash_dataset = hashlib.sha256(dataset_bytes).hexdigest()
     filename = f"{hash_dataset}"
-    meta_info = {'data_name': dataset_name, 'user_dataset_name': user_set_dataset_name, 'system_trained': False,
-                 'dataset_filename': f'{filename}.pkl', 'products': available_products}
+    meta_info = {'data_name': dataset_name, 'system_trained': False, 'dataset_filename': f'{
+        filename}.pkl', 'data_file_name': data_filename, 'rows': len(dataset), 'options': options}
     current_directory = os.getcwd()
     dataset_directory = os.path.join(current_directory, f'../datasets/{filename}')
-
     with open(dataset_directory+'.meta', 'wb') as file:
         pickle.dump(meta_info, file)
     file.close()
@@ -151,7 +148,6 @@ def save_dataset_to_system(dataset_info):
 
 
 def pretty_markdown_for_datasets(dataset_dict_list):
-
     heading = '### Available Datasets \n '
     table_header = '|Dataset Name|Filename|Size/Nr. of Rows|\n|---|---|---|'
     table_rows = ''
@@ -179,16 +175,45 @@ def get_dataset_from_choice(choice_str, datasets):
     for dataset_info in datasets:
         if dataset_info['data_name']+' - ' + dataset_info['data_file_name'] == choice_str:
             wanted_dataset_info = dataset_info
-            print(wanted_dataset_info)
+#            print(wanted_dataset_info)
             break
     df_filename = wanted_dataset_info['dataset_filename']
     current_directory = os.getcwd()
     dataset_file_loc = os.path.join(current_directory, f'../datasets/{df_filename}')
     with open(dataset_file_loc, 'rb') as file:
         df = pickle.load(file)
-    
+
     options = wanted_dataset_info['options']
-    return df, options
+    return df, options, wanted_dataset_info['data_file_name']
 
 
+def get_model_from_choice(choice_str, models):
+    for model_info in models:
+        if 'user_model_name' not in model_info:
+            model_info['user_model_name'] = 'System Trained'
+        if model_info['model_name']+' - ' + model_info['user_model_name'] == choice_str:
+            wanted_model_info = model_info
+            break
+    model_filename = wanted_model_info['model_filename']
+    current_directory = os.getcwd()
+    model_file_loc = os.path.join(current_directory, f'../tought_models/{model_filename}')
+    with open(model_file_loc, 'rb') as file:
+        model = pickle.load(file)
 
+    available_products = wanted_model_info['products']
+    return model, available_products
+
+
+def make_prediction(model, products, date_range_tuple):
+
+    prediction_collector = {product: 0 for product in products}
+    date_range = pd.date_range(date_range_tuple[0], date_range_tuple[1])
+    print(0)
+    for product in products:
+        prediction_collector[product] = [model.predict(
+            np.array([date.year, date.month, date.day]).reshape(1, -1))[0] for date in date_range]
+
+    print(prediction_collector)
+#    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
+    prediction_df = pd.DataFrame.from_dict(prediction_collector, orient='index').sum(axis=1)
+    return prediction_df

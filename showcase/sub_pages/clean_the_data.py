@@ -30,7 +30,7 @@ try:
             'Input an Upper percentile (between 50 and 100)', value=95, min_value=50, max_value=100)
         winsor_percentile_lower = st.number_input(
             'Input an Lower percentile (between 0 and 50)', value=5, min_value=0, max_value=50)
-        options['winsor_percentile'] = (winsor_percentile_lower, winsor_percentile_upper)
+        options['winsor_percentile'] = (winsor_percentile_upper, winsor_percentile_lower)
     else:
         options['winsor_percentile'] = st.number_input(
             'Input a percentile (between 0 and 100) -- 0 or 100 do not make sense though', value=5, min_value=0, max_value=100)
