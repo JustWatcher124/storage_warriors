@@ -7,7 +7,7 @@ pages = {
     'New Model / Data': [st.Page('load_new_data.py', title="Load Your Own Data"),
                          st.Page('sub_pages/clean_the_data.py', title='Clean your Data'),
                          st.Page('sub_pages/train_or_save.py', title='Train or Save')],
-    'Existing Model / Data': [st.Page('load_old_data.py', title="Load some Data")]
+    'Existing Model / Data': [st.Page('load_old_data.py', title="Load Model or Data")]
 }
 pg = st.navigation(pages)
 

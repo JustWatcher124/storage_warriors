@@ -33,7 +33,7 @@ try:
                        for model in st.session_state['trained_models']}
         safe_them = st.button('Safe these models in the system')
         choose_one_to_save = any([v[0] for k, v in save_models.items()])
-        available_products = df[st.session_state['cleaning_options']['product_id']].to_list()
+        available_products = list(df[st.session_state['cleaning_options']['product_id']].unique())
         user_model_name = st.text_input('### Put a Name for your trained models here')
         unallowed_characters = '#\'\"[]{}:();,./?!@%$'
         user_input_is_disallowed = any([i in user_model_name for i in unallowed_characters])

@@ -6,6 +6,7 @@ from typing import Union
 import os
 import pickle
 import hashlib
+import datetime
 
 
 def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
@@ -115,7 +116,9 @@ def save_model_to_system(model_info):
     hash_model = hashlib.sha256(model_bytes).hexdigest()
     filename = f"{hash_model}"
     meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
-                 'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products}
+                 'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products,
+                 'train_data': str(datetime.datetime.now().isoformat())}
+
     current_directory = os.getcwd()
     model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
 
@@ -134,8 +137,8 @@ def save_dataset_to_system(dataset_info):
     model_bytes = pickle.dumps(model)
     hash_model = hashlib.sha256(model_bytes).hexdigest()
     filename = f"{hash_model}"
-    meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
-                 'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products}
+    meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name, 'system_trained': False,
+                 'model_filename': f'{filename}.pkl', 'products': available_products}
     current_directory = os.getcwd()
     model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
 
@@ -146,3 +149,28 @@ def save_dataset_to_system(dataset_info):
         pickle.dump(model, file)
     file.close()
     return 0
+
+
+def pretty_markdown_for_datasets(dataset_dict_list):
+
+    heading = '### Available Datasets \n '
+    table_header = '|Dataset Name|Filename|Size/Nr. of Rows|\n|---|---|---|'
+    table_rows = ''
+    for dataset_info in dataset_dict_list:
+        table_rows += f'\n|{dataset_info["data_name"]}|{dataset_info["data_file_name"]}|{dataset_info["rows"]}|'
+    markdown = heading + table_header + table_rows
+    return markdown
+
+
+def pretty_markdown_for_models(model_dict_list):
+    heading = '### Available Models \n '
+    table_header = '|Model Type|Model Name|Model Date|\n|---|---|---|'
+    table_rows = ''
+    for model_info in model_dict_list:
+        if 'user_model_name' not in model_info:
+            model_info['user_model_name'] = 'System Trained'
+        if 'train_date' not in model_info:
+            model_info['train_date'] = datetime.datetime(1970, 1, 1, 0, 0)
+        table_rows += f'\n| {model_info["model_name"]} | {model_info["user_model_name"]} | {model_info["train_date"]} |'
+    markdown = heading + table_header + table_rows
+    return markdown

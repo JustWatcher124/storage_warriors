@@ -8,7 +8,7 @@ Here you can choose a dataset that was either uploaded by you, on which a model 
 If you uploaded and cleaned a dataset on our platfrom and chose to save it, you will see them below.
 [[[[
 
-## Choose a Trained Model
+## Choose a System Trained Model
 
 Here you can choose datasets and their respective Model that have already been trained by us.
 
@@ -18,4 +18,10 @@ Here you can choose datasets and their respective Model that have already been t
 
 ## Choose Your Trained Model
 
-The System detected a dataset / model that was trained using your own dataset. You can choose it below. You can also choose to use a model and dataset which we trained.
+The System detected a dataset / model that was trained using your own dataset. You can choose it below.
+
+[[[[
+
+## Choose a Dataset from us
+
+If you prefer, we ship the system with a (few) already cleaned datasets that you can use if you just want to try out our platform.

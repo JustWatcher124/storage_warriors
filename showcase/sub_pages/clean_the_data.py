@@ -46,7 +46,11 @@ try:
     if submitted:
         st.session_state['cleaned_data'] = True
         # st.write(options)
-        st.session_state['clean_dataframe'] = clean_dataframe(df, winsorize_this_value=options['wanted_value'], winsor_percentile=options['winsor_percentile'], fillna_value=options['fillna_with'], drop_columns=options['drop_columns'])
+        st.session_state['clean_dataframe'] = clean_dataframe(
+            df, winsorize_this_value=options['wanted_value'],
+            winsor_percentile=options['winsor_percentile'],
+            fillna_value=options['fillna_with'],
+            drop_columns=options['drop_columns'])
         st.session_state['cleaning_options'] = options
         st.markdown(markdown[7])
 
