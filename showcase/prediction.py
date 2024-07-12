@@ -34,7 +34,7 @@ try:
         else:
             multivariate_prediction = False
         pred_data = helper_functions.make_prediction(model, products, d, multivariate_prediction)
-        st.dataframe(pred_data.head(20))
+        st.dataframe(pred_data)
 except:
     with open('markdowns/skipped_page.md') as file:
         markdown = file.read()

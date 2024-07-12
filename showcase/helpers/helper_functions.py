@@ -7,6 +7,7 @@ import pickle
 import hashlib
 import datetime
 import numpy as np
+from math import ceil as ceiling
 
 
 def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
@@ -212,7 +213,11 @@ def make_prediction(model, products, date_range_tuple, multivariate):
     print(products)
     if multivariate:
         # pass
-        pred_features = pd.DataFrame({'product_id': ['Never Gonna Give You Up'], 'year': [2003], 'month': [3], 'day': [15]})
+        pred_features = pd.DataFrame(
+            {'product_id': ['Never Gonna Give You Up'],
+             'year': [2003],
+             'month': [3],
+             'day': [15]})
 
         for product in products:
             for date in date_range:
@@ -227,7 +232,6 @@ def make_prediction(model, products, date_range_tuple, multivariate):
         # = sum([model.predict(np.array(row[1].values).reshape(1, -1)) for row in features.iterrows()])
         # print(features)
         # print(df)
-        return pred_features
 
         for product in products:
             needed = 0
@@ -236,7 +240,7 @@ def make_prediction(model, products, date_range_tuple, multivariate):
                 # print(row)
                 needed += model.predict(np.array(row.values).reshape(1, -1))
                 # print(t)
-            prediction_collector[product] = needed
+            prediction_collector[product] = ceiling(needed)
     else:
         for product in products:
             prediction_collector[product] = [model.predict(
@@ -244,4 +248,4 @@ def make_prediction(model, products, date_range_tuple, multivariate):
 
     #     #    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
     prediction_df = pd.DataFrame.from_dict(prediction_collector, orient='index').sum(axis=1)
-    return prediction_df, features
+    return prediction_df
