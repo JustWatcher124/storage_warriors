@@ -1,16 +1,16 @@
-# Dev-Phase - this README reflects the planned End-State of the project
 # Storage Warriors -- The Solution for Storage Optimization
 
+We are a team of hip and cool Data Scientist that wants to bring prediction via Machine Learning models to the masses.
 # Overview
 
-**Storage Warriors** ist eine leistungsstarke Lösung für die Datenanalyse und -verwaltung, die darauf abzielt, Geschäftsprozesse durch optimierte Datennutzung zu verbessern. Unsere Plattform ermöglicht die effiziente Analyse und Verwaltung von Daten in verschiedenen Formaten und bietet eine benutzerfreundliche Oberfläche für den Umgang mit großen Datenmengen.
+**Storage Warriors** t eine leistungsstarke Lösung für die Datenanalyse und -verwaltung, die darauf abzielt, Geschäftsprozesse durch optimierte Datennutzung zu verbessern. Unsere Plattform ermöglicht die effiziente Analyse und Verwaltung von Daten in verschiedenen Formaten und bietet eine benutzerfreundliche Oberfläche für den Umgang mit großen Datenmengen.
 Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse historischer Bestelldaten präzise Vorhersagen für zukünftige Bestellungen zu treffen. So können Sie rechtzeitig agieren, Ihre Lagerbestände effizienter verwalten und sich entscheidende Wettbewerbsvorteile sichern.
 
 # Team Members / Participants
 
 | Member Name    | Student Number |
 | -------------- | -------------- |
-| ---            | 6367227        |
+| Hendrik Träber | 6367227        |
 | Paul Brüderle  | 3224687        |
 | David Kleiner  | 1622864        |
 | Gülbahar Cogac | 5801309        |
@@ -51,8 +51,14 @@ See _Usage_ to see how to use the software
 
 # Usage
 
-Now the program is usable with `python3 -m start.py DATA`
+You can now start the Platform by:
+```
+cd showcase
+streamlit run startpage.py
+```
 
-`DATA` is the path or file to a data file or directory containing parts.
+The Platform will guide you through the usage.
+## Usage Disclaimer
+The Platform was only properly tested with \*Nix systems and may lead to unforeseen, and unwanted behaviour.
 
-Supported file formats for DATA files: _parquet, csv, xlsx, xls, ods_
+If you are on Windows 10 and above, you can use WSL to ensure the platform runs without errors.
