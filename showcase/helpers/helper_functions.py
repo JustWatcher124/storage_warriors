@@ -10,145 +10,133 @@ import numpy as np
 from math import ceil as ceiling
 
 
-def load_data_path_or_stringio(file_path: Union[str, StringIO], worksheet=0) -> pd.DataFrame:
+def load_data_stringio(stringio_list) -> pd.DataFrame:
     """
     Loads one or more data files (CSV, Parquet, Excel/xlsx/xls, ODS) into a Pandas DataFrame.
 
-    The function now handles StringIO objects as well. It searches for all files matching the provided file path and loads them one by one using an inner helper function.
+    The function now handles StringIO objects. 
     It ensures that the columns' names are converted to lowercase before concatenating the individual DataFrames.
 
     Args:
-        file_path (Union[str, StringIO]): The path of the file(s) or a StringIO object containing data to load.
-        worksheet (int, string or list[str, int], optional): The worksheet(s) (by zero-index or name(s)) to load from Excel files. Default is 0.
+        stringio_list: list[tuple], tuple containing (StringIO, filename: str)
 
     Returns:
         pd.DataFrame: A concatenated DataFrame containing the data from all loaded files.
     """
 
-    def load_single_file(data):
-        # Check if the input is a StringIO object
-        if isinstance(data, StringIO):
-            return pd.read_csv(data)
+    def load_single_file(stringio, filename):
+        ext = filename.split(".")[-1]
 
-        ext = path_filename.split(".")[-1]
         if ext == "csv":  # csv file
-            return pd.read_csv(path_filename)
+            return pd.read_csv(stringio)
         elif ext == "parquet":
-            return pd.read_parquet(path_filename, engine="pyarrow")
+            return pd.read_parquet(stringio, engine="pyarrow")
         elif ext in ("xlsx", "xls"):
-            return pd.read_excel(StringIO(data.getvalue().decode("utf-8")), sheet_name=worksheet)
+            return pd.read_excel(stringio)
         elif ext == "ods":
-            return pd.read_excel(StringIO(data.getvalue().decode("utf-8")), engine="odf")
+            return pd.read_excel(stringio, engine="odf")
 
-    if isinstance(file_path, str):
-        all_files = glob.glob(file_path)
-    else:  # Handling StringIO object
-        all_files = file_path
-
-#    print('This file or these files will be loaded:\n', ''.join([f.name for f in all_files]))
+    # list to hold dataframe unconcatenated
+    list_df = list()
 
     # all columns in all files get converted to lowercase to make concatenation less error prone
-    list_df = list()
-    for filename in all_files:
-        df = load_single_file(filename)
+
+    for stringio, filename in stringio_list:
+        # load a single stringio object
+        df = load_single_file(stringio, filename)
+        # make all column names lower case -- helps with mis input in the original data files
         df.columns = map(lambda x: x.lower().strip(), df.columns)
         list_df.append(df)
 
-    data_raw = pd.concat(list(list_df))
-    return data_raw
-
-
-def load_data_from_path(file_path: str, worksheet=0) -> pd.DataFrame:
-    """
-    Loads one or more data files (CSV, Parquet, Excel/xlsx/xls, ODS) into a Pandas DataFrame.
-
-    The function searches for all files matching the provided file path and loads them one by one using an inner helper function.
-    It ensures that the columns' names are converted to lowercase before concatenating the individual DataFrames.
-
-    Args:
-        file_path (str): The path of the file(s) to load, or a pattern for multiple files.
-        worksheet (int, string or list[str, int], optional): The worksheet(s) (by zero-index or name(s)) to load from Excel files. Default is 0.
-
-    Returns:
-        pd.DataFrame: A concatenated DataFrame containing the data from all loaded files.
-    """
-    # inner function to facilitate the loading of one file
-    def load_single_file(path_filename):
-        ext = path_filename.split(".")[-1]
-        if ext == "csv":  # csv file
-            return pd.read_csv(path_filename)
-        elif ext == "parquet":
-            return pd.read_parquet(path_filename, engine="pyarrow")
-        elif ext in ("xlsx", "xls"):
-            return pd.read_excel(path_filename, sheet_name=worksheet)
-        elif ext == "ods":
-            return pd.read_excel(path_filename, engine="odf")
-
-    all_files = glob.glob(file_path)
-    print('This file or these files will be loaded:\n', ''.join(all_files))
-
-    # all columns in all files get converted to lowercase to make concatenation less error prone
-    list_df = list()
-    for filename in all_files:
-        df = load_single_file(filename)
-        df.columns = map(lambda x: x.lower().strip(), df.columns)
-        list_df.append(df)
-
+    # concatenate the dataframes into one
     data_raw = pd.concat(list(list_df))
     return data_raw
 
 
 def get_files(directory='.', extension='.meta'):
+    '''
+        Searches for all files in a directory / path with the extension specified
+        Returns:
+            list[str]: containing full paths to the files
+    '''
     return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith(extension)]
 
 
 def only_selected_models(model_dict):
+    '''
+        Used to only get models that the user wants to train
+        Returns:
+            list[str]: Names of the modes
+    '''
     return [model_name for model_name, boolean in model_dict.items() if boolean]
 
 
 def only_selected_model_infos(save_model_dict):
+    '''
+        Used to get the meta information for models in train_or_save.py
+    '''
     return [info[1] for model_name, info in save_model_dict.items() if info[0]]
 
 
 def save_model_to_system(model_info, data_filename):
-    model_mae, model_name, model, available_products, user_set_model_name = model_info
+    '''
+        Saves the model to the system model folders the systems file format 
+        Saves model and metainformation seperately
+    '''
+    # unpack the model_info list
+    _, model_name, model, available_products, user_set_model_name = model_info
+    # generate a unique file name per model
     model_bytes = pickle.dumps(model)
     hash_model = hashlib.sha256(model_bytes).hexdigest()
     filename = f"{hash_model}"
+    # format the meta information
     meta_info = {'model_name': model_name, 'user_model_name': user_set_model_name,
                  'system_trained': False, 'model_filename': f'{filename}.pkl', 'products': available_products,
-                 'train_date': str(datetime.datetime.now().isoformat())}
+                 'train_date': str(datetime.datetime.now().isoformat()), 'data_file_name': data_filename}
 
+    # get path to directory for saving the models
     current_directory = os.getcwd()
     model_directory = os.path.join(current_directory, f'../tought_models/{filename}')
 
+    # write the meta information to a .meta file
     with open(model_directory+'.meta', 'wb') as file:
         pickle.dump(meta_info, file)
     file.close()
+    # write the trained model to a pkl file
     with open(model_directory+'.pkl', 'wb') as file:
         pickle.dump(model, file)
     file.close()
-    return 0
+    return
 
 
 def save_dataset_to_system(dataset, data_filename, dataset_name, options):
+    # generate a unique name per dataset
     dataset_bytes = pickle.dumps(dataset)
     hash_dataset = hashlib.sha256(dataset_bytes).hexdigest()
     filename = f"{hash_dataset}"
+
+    # format the meta information
     meta_info = {'data_name': dataset_name, 'system_trained': False, 'dataset_filename': f'{
         filename}.pkl', 'data_file_name': data_filename, 'rows': len(dataset), 'options': options}
+    # get directory to save the datasets there
     current_directory = os.getcwd()
     dataset_directory = os.path.join(current_directory, f'../datasets/{filename}')
+
+    # save the meta information to a .meta file
     with open(dataset_directory+'.meta', 'wb') as file:
         pickle.dump(meta_info, file)
     file.close()
+    # save the dataset to a .pkl file
     with open(dataset_directory+'.pkl', 'wb') as file:
         pickle.dump(dataset, file)
     file.close()
-    return 0
+    return
 
 
 def pretty_markdown_for_datasets(dataset_dict_list):
+    """
+        Formats meta information of datasets into a markdown table to show to the user
+    """
     heading = '### Available Datasets \n '
     table_header = '|Dataset Name|Filename|Size/Nr. of Rows|\n|---|---|---|'
     table_rows = ''
@@ -159,6 +147,9 @@ def pretty_markdown_for_datasets(dataset_dict_list):
 
 
 def pretty_markdown_for_models(model_dict_list):
+    """
+        Formats meta information of models into a markdown table to show to the user
+    """
     heading = '### Available Models \n '
     table_header = '|Model Type|Model Name|Model Date|\n|---|---|---|'
     table_rows = ''
@@ -173,10 +164,15 @@ def pretty_markdown_for_models(model_dict_list):
 
 
 def get_dataset_from_choice(choice_str, datasets):
+    """
+        Get the correct dataset that the user chose to load from a string identifier
+
+        Returns:
+            pd.DataFrame: First dataset file that fits the search algorithm gets returned
+    """
     for dataset_info in datasets:
         if dataset_info['data_name']+' - ' + dataset_info['data_file_name'] == choice_str:
             wanted_dataset_info = dataset_info
-#            print(wanted_dataset_info)
             break
     df_filename = wanted_dataset_info['dataset_filename']
     current_directory = os.getcwd()
@@ -189,6 +185,12 @@ def get_dataset_from_choice(choice_str, datasets):
 
 
 def get_model_from_choice(choice_str, models):
+    """
+        Get the correct model that the user chose to load from a string identifier
+
+        Returns:
+            sklearn regression models: First model that fits the search algorithm gets returned
+    """
     for model_info in models:
         if 'user_model_name' not in model_info:
             model_info['user_model_name'] = 'System Trained'
@@ -205,47 +207,49 @@ def get_model_from_choice(choice_str, models):
     return model, available_products
 
 
-def make_prediction(model, products, date_range_tuple, multivariate):
+def make_prediction(model, products, date_range_tuple):
+    """
+        Ask a model to predict the needed inventory for a given product, in a given time range
 
+        Returns:
+            pd.DataFrame: index = list of products, first and only column is the predicted value for the time range
+    """
+
+    # collect predictions for products in a single place to later make dataframe from
     prediction_collector = {product: 0 for product in products}
+    # date_range is a list of dates to predict the models with
     date_range = pd.date_range(date_range_tuple[0], date_range_tuple[1])
-    # print(prediction_collector)
-    print(products)
-    if multivariate:
-        # pass
-        pred_features = pd.DataFrame(
-            {'product_id': ['Never Gonna Give You Up'],
-             'year': [2003],
-             'month': [3],
-             'day': [15]})
 
-        for product in products:
-            for date in date_range:
-                temp_df = pd.DataFrame([[product, date.year, date.month, date.day]], columns=pred_features.columns)
-                pred_features.index = pred_features.index + 1
-                pred_features = pd.concat([pred_features, temp_df])
-                # features = features.sort_index()
+    # needed to make concatenation work (and I like easter eggs)
+    pred_features = pd.DataFrame(
+        {'product_id': ['Never Gonna Give You Up'],
+         'year': [2003],
+         'month': [3],
+         'day': [15]})
 
-        pred_features = pred_features[~pred_features['product_id'].eq('Never Gonna Give You Up')]
-        pred_features = pd.get_dummies(pred_features, columns=['product_id'])
-        # return features
-        # = sum([model.predict(np.array(row[1].values).reshape(1, -1)) for row in features.iterrows()])
-        # print(features)
-        # print(df)
+    # make a prediction feature dataframe to ask for multiple products
+    for product in products:
+        for date in date_range:
+            # temp_df is used for one row, then overwritten with new, same structure as pred_features
+            temp_df = pd.DataFrame([[product, date.year, date.month, date.day]], columns=pred_features.columns)
+            pred_features.index = pred_features.index + 1
+            pred_features = pd.concat([pred_features, temp_df])
 
-        for product in products:
-            needed = 0
-            for index, row in pred_features[pred_features['product_id_'+product]].iterrows():
-                # return row
-                # print(row)
-                needed += model.predict(np.array(row.values).reshape(1, -1))
-                # print(t)
-            prediction_collector[product] = ceiling(needed)
-    else:
-        for product in products:
-            prediction_collector[product] = [model.predict(
-                np.array([date.year, date.month, date.day]).reshape(1, -1))[0] for date in date_range]
+    # delete the easter egg (which actually makes this thing work lol)
+    pred_features = pred_features[~pred_features['product_id'].eq('Never Gonna Give You Up')]
+    # produce dummy values for product id's as the models can't handel string inputs
+    pred_features = pd.get_dummies(pred_features, columns=['product_id'])
 
-    #     #    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
+    # go through the list of products again
+    for product in products:
+        # collector for all predictions
+        needed = 0
+        # iterates through the pred_features dataframe, while only taking products that we want to predict for in this product iteration
+        for _, row in pred_features[pred_features['product_id_'+product]].iterrows():
+            needed += model.predict(np.array(row.values).reshape(1, -1))
+        # collect the needed inventory prediction into the designated place
+        prediction_collector[product] = ceiling(needed)
+
+    # reformat the prediction collector for display into a dataframe
     prediction_df = pd.DataFrame.from_dict(prediction_collector, orient='index').sum(axis=1)
     return prediction_df

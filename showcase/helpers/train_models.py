@@ -104,7 +104,4 @@ def main_st(df, options, model_list):
 
     X_train, X_test, Y_train, Y_test = preprocess_and_split(df, options)
     results, results_markdown = train_models_st(X_train, Y_train, X_test, Y_test, wanted_models)
-    # results = train_models_with_parallel(X_train, Y_train, X_test, Y_test, wanted_models)
-    # st.write(results)
-    # print(results)
     return results, results_markdown
