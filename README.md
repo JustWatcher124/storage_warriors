@@ -1,10 +1,12 @@
 # Storage Warriors -- The Solution for Storage Optimization
 
 We are a team of hip and cool Data Scientist that wants to bring prediction via Machine Learning models to the masses.
+
 # Overview
 
-**Storage Warriors** t eine leistungsstarke Lösung für die Datenanalyse und -verwaltung, die darauf abzielt, Geschäftsprozesse durch optimierte Datennutzung zu verbessern. Unsere Plattform ermöglicht die effiziente Analyse und Verwaltung von Daten in verschiedenen Formaten und bietet eine benutzerfreundliche Oberfläche für den Umgang mit großen Datenmengen.
-Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse historischer Bestelldaten präzise Vorhersagen für zukünftige Bestellungen zu treffen. So können Sie rechtzeitig agieren, Ihre Lagerbestände effizienter verwalten und sich entscheidende Wettbewerbsvorteile sichern.
+**Storage Warriors** is a high-performing solution for data analysis and management that aims to improve business processes by optimizing data usage. Our platform allows for efficient analysis and management of data in various formats and offers a user-friendly interface for handling large amounts of data.
+
+Our main goal is to help businesses make precise predictions about future orders based on the analysis of historical order data. This enables you to act promptly, manage inventory efficiently, and secure significant competitive advantages.
 
 # Team Members / Participants
 
@@ -52,13 +54,16 @@ See _Usage_ to see how to use the software
 # Usage
 
 You can now start the Platform by:
+
 ```
 cd showcase
 streamlit run startpage.py
 ```
 
 The Platform will guide you through the usage.
+
 ## Usage Disclaimer
+
 The Platform was only properly tested with \*Nix systems and may lead to unforeseen, and unwanted behaviour.
 
 If you are on Windows 10 and above, you can use WSL to ensure the platform runs without errors.
