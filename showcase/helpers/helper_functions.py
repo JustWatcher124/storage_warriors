@@ -66,7 +66,7 @@ def load_data_from_path(file_path: str, worksheet=0) -> pd.DataFrame:
 
     Args:
         file_path (str): The path of the file(s) to load, or a pattern for multiple files.
-        worksheet (int, string or list[str, int], optional): The worksheet(s) (by zero-index or name(s)) to load from Excel files. Default is 0. 
+        worksheet (int, string or list[str, int], optional): The worksheet(s) (by zero-index or name(s)) to load from Excel files. Default is 0.
 
     Returns:
         pd.DataFrame: A concatenated DataFrame containing the data from all loaded files.
@@ -204,15 +204,44 @@ def get_model_from_choice(choice_str, models):
     return model, available_products
 
 
-def make_prediction(model, products, date_range_tuple):
+def make_prediction(model, products, date_range_tuple, multivariate):
 
     prediction_collector = {product: 0 for product in products}
     date_range = pd.date_range(date_range_tuple[0], date_range_tuple[1])
-    print(prediction_collector)
-    for product in products:
-        prediction_collector[product] = [model.predict(
-            np.array([date.year, date.month, date.day]).reshape(1, -1))[0] for date in date_range]
+    # print(prediction_collector)
+    print(products)
+    if multivariate:
+        # pass
+        pred_features = pd.DataFrame({'product_id': ['Never Gonna Give You Up'], 'year': [2003], 'month': [3], 'day': [15]})
 
-        #    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
+        for product in products:
+            for date in date_range:
+                temp_df = pd.DataFrame([[product, date.year, date.month, date.day]], columns=pred_features.columns)
+                pred_features.index = pred_features.index + 1
+                pred_features = pd.concat([pred_features, temp_df])
+                # features = features.sort_index()
+
+        pred_features = pred_features[~pred_features['product_id'].eq('Never Gonna Give You Up')]
+        pred_features = pd.get_dummies(pred_features, columns=['product_id'])
+        # return features
+        # = sum([model.predict(np.array(row[1].values).reshape(1, -1)) for row in features.iterrows()])
+        # print(features)
+        # print(df)
+        return pred_features
+
+        for product in products:
+            needed = 0
+            for index, row in pred_features[pred_features['product_id_'+product]].iterrows():
+                # return row
+                # print(row)
+                needed += model.predict(np.array(row.values).reshape(1, -1))
+                # print(t)
+            prediction_collector[product] = needed
+    else:
+        for product in products:
+            prediction_collector[product] = [model.predict(
+                np.array([date.year, date.month, date.day]).reshape(1, -1))[0] for date in date_range]
+
+    #     #    products_predicted, needed_inventory = [(prod, need_inv) for prod, need_inv in prediction_collector.items()]
     prediction_df = pd.DataFrame.from_dict(prediction_collector, orient='index').sum(axis=1)
-    return prediction_df
+    return prediction_df, features

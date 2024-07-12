@@ -28,7 +28,12 @@ try:
     if predict_them:
         if not products:
             products = available_products
-        pred_data = helper_functions.make_prediction(model, products, d)
+        if len(available_products) > 1:
+            multivariate_prediction = True
+            products = available_products
+        else:
+            multivariate_prediction = False
+        pred_data = helper_functions.make_prediction(model, products, d, multivariate_prediction)
         st.dataframe(pred_data.head(20))
 except:
     with open('markdowns/skipped_page.md') as file:

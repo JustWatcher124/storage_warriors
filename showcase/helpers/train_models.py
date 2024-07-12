@@ -1,6 +1,4 @@
-import hashlib
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
@@ -9,7 +7,6 @@ from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 import streamlit as st
-from joblib import Parallel, delayed
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 MODELS = [
@@ -28,7 +25,7 @@ def get_features(data, options):
     features = [options['product_id'], 'year', 'month', 'day']
     X = data[features]
     y = data[options['wanted_value']]
-    X = pd.get_dummies(X, columns=[options['product_id']], drop_first=True)
+    X = pd.get_dummies(X, columns=[options['product_id']])
     return X, y
 
 
@@ -62,14 +59,6 @@ def make_pretty_markdown_from_results(results: list[tuple]):
     pretty_markdown_list = ["|"+str(name)+'|'+str(round(scores, 2))+"|\n" for scores, name, model in results]
     markdown = "".join([pretty_markdown_header, *pretty_markdown_list])
     return markdown
-
-
-def train_models_with_parallel(X_train, y_train, X_test, y_test, model_list):
-    """unusud but is a possible replacement for train_models_st"""
-    results = Parallel(n_jobs=2)(delayed(_train_and_test)(X_train, y_train, X_test,
-                                                          y_test, model_info['model']) for model_info in model_list)
-    # print(results)
-    return results
 
 
 def _train_and_test(X_train, y_train, X_test, y_test, model, name):

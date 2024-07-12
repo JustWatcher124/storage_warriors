@@ -12,7 +12,7 @@ Unser Hauptziel ist es, Unternehmen dabei zu unterstützen, durch die Analyse hi
 | -------------- | -------------- |
 | ---            | 6367227        |
 | Paul Brüderle  | 3224687        |
-| David Kleiner  | MISSING        |
+| David Kleiner  | 1622864        |
 | Gülbahar Cogac | 5801309        |
 
 # Installation
